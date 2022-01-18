@@ -1,2 +1,2 @@
-# CATH-T5
+# CATHe
 
