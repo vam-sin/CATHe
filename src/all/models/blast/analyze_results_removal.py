@@ -8,43 +8,18 @@ from sklearn.utils import resample
 
 # load data and check
 ds = pd.read_csv('all-vs-all.tsv', sep='\t', header=None)
-ds.columns = ["q" , "t", "pid", "length", "slen", "qlen", "eval"]
+ds.columns = ["q" , "t", "pid", "four","five","six","seven","eight","nine","ten","eval","twelve"]
+# ds.columns = ["q" , "t", "pid", "length", "slen", "qlen", "eval", "bitscore"]
 print(ds)
 
-# make overlap feature
-# overlap = []
-# aln_length = list(ds["length"])
-# qlen = list(ds["qlen"])
-# slen = list(ds["slen"])
-
-# for i in range(len(aln_length)):
-# 	overlap.append(aln_length[i] / max(qlen[i], slen[i]))
-
-# ds["overlap"] = overlap
-
-# remove certain train sequences
-# infile = open('remove_seq_mmseqs_condn_10.pickle','rb')
-# remove_seq = pickle.load(infile)
-# infile.close()
-# remove_seq = set(remove_seq)
-
-# ds = ds[~ds["t"].isin(remove_seq)]
-# print(ds)
-
-# evalue cutoff
-# ds = ds[ds["eval"] <= 10]
-
-# overlap cutoff 
-# ds = ds[ds["overlap"] >= 0.3]
-
 q_un = []
+y_test = []
 
 # y_pred generation
-for record in SeqIO.parse("test.fasta", "fasta"):
+for record in SeqIO.parse("test_all.fasta", "fasta"):
     q_un.append(record.description)
-
-y_test = pd.read_csv('Test.csv')
-y_test = list(y_test["SF"])
+    spl = record.description.split('_')
+    y_test.append(spl[len(spl) - 1])
 
 y_pred = []
 count = 0
@@ -73,13 +48,15 @@ for i in range(len(q_un)):
 	if len(target) == 0:
 		# if no hit
 		for query in q_un:
-			if query.split('_')[3] != y_test[i]:
-				sf = query.split('_')[3]
+			spl = query.split('_')
+			if spl[len(spl) - 1] != y_test[i]:
+				sf = spl[len(spl) - 1]
 				break
 	else:
 		# found a good hit
 		count += 1
-		sf = target[0].split('_')[3]
+		spl = target[0].split('_')
+		sf = spl[len(spl) - 1]
 	print(sf, y_test[i])
 	y_pred.append(sf)
 
@@ -123,8 +100,8 @@ print("MCC: ", np.mean(mcc_arr), np.std(mcc_arr))
 print("Bal Acc: ", np.mean(bal_arr), np.std(bal_arr))
 
 '''
-Accuracy:  0.3195542312276519 0.005711106662232276
-F1-Score:  0.2167746979988557 0.006063206363987007
-MCC:  0.31721905583723653 0.005722178290308073
-Bal Acc:  0.2529937488587626 0.006604891604146327
+Accuracy:  0.31245161760419704 0.005658719323554423
+F1-Score:  0.21536128597311935 0.006040697628749656
+MCC:  0.310088764795035 0.005670890714957613
+Bal Acc:  0.2531639426479432 0.006609206424256284
 '''

@@ -4,10 +4,15 @@ import numpy as np
 from sklearn.utils import resample
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, classification_report, matthews_corrcoef, balanced_accuracy_score
 
-test = pd.read_csv('../../data/final/Test.csv')
+test = pd.read_csv('../../data/final/CSV/Test.csv')
 y_test = list(test["SF"])
-train = pd.read_csv('../../data/final/Train.csv')
+for i in range(150):
+	y_test.append('other')
+
+train = pd.read_csv('../../data/final/CSV/Train.csv')
 train_sf = list(train["SF"])
+for i in range(3456):
+	train_sf.append('other')
 
 acc = []
 f1 = []
@@ -38,8 +43,8 @@ print(np.mean(ba), np.std(ba))
 # print(cr)
 
 '''
-Accuracy: 0.0045119189511323 0.0008166512714633589
-F1-Score: 0.0004619216238013885 0.00020521450597855932
-MCC: -1.216621567399447e-05 0.0008190699742340104
-Balanced Accuracy: 0.0007005831158197104 0.00031416093242522174
+0.004453803555814631 0.0008246335652253825
+0.00046690909257299316 0.00020300077857971955
+-3.398730206220937e-05 0.0008245573165193321
+0.0007073635938447099 0.00030933828068284745
 '''

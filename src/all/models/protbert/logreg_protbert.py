@@ -2,37 +2,62 @@
 import pandas as pd 
 import numpy as np 
 from sklearn import preprocessing
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+import biovec
+import math
 import pickle
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold
+from sklearn.preprocessing import StandardScaler, LabelEncoder, normalize
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, classification_report, matthews_corrcoef, balanced_accuracy_score
+import matplotlib.pyplot as plt
+from sklearn.utils import shuffle
+from sklearn.model_selection import KFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.utils import resample 
 
-# load files
 # dataset import
 # train 
 ds_train = pd.read_csv('Y_Train_SF.csv')
-
 y_train = list(ds_train["SF"])
 
 filename = 'SF_Train_ProtBert.npz'
 X_train = np.load(filename)['arr_0']
+filename = 'Other_Train_US.npz'
+X_train_other = np.load(filename)['arr_0']
+
+X_train = np.concatenate((X_train, X_train_other), axis=0)
+
+for i in range(len(X_train_other)):
+    y_train.append('other')
 
 # val
 ds_val = pd.read_csv('Y_Val_SF.csv')
-
 y_val = list(ds_val["SF"])
 
 filename = 'SF_Val_ProtBert.npz'
 X_val = np.load(filename)['arr_0']
 
+filename = 'Other_Val_US.npz'
+X_val_other = np.load(filename)['arr_0']
+
+X_val = np.concatenate((X_val, X_val_other), axis=0)
+
+for i in range(len(X_val_other)):
+    y_val.append('other')
+
 # test
 ds_test = pd.read_csv('Y_Test_SF.csv')
-
 y_test = list(ds_test["SF"])
 
 filename = 'SF_Test_ProtBert.npz'
 X_test = np.load(filename)['arr_0']
+
+filename = 'Other_Test_US.npz'
+X_test_other = np.load(filename)['arr_0']
+
+X_test = np.concatenate((X_test, X_test_other), axis=0)
+
+for i in range(len(X_test_other)):
+    y_test.append('other')
 
 # y process
 y_tot = []
@@ -57,28 +82,51 @@ num_classes = len(np.unique(y_tot))
 print(num_classes)
 print("Loaded X and y")
 
-# logistic regression
-print("Training\n")
-clf = LogisticRegression(random_state=0, verbose=1, max_iter = 1000).fit(X_train, y_train)
+X_train, y_train = shuffle(X_train, y_train, random_state=42)
 
-print("Testing\n")
+# logreg model
+clf = LogisticRegression(solver='lbfgs', random_state=0, max_iter=5000, verbose=1).fit(X_train, y_train)
+# val_score = clf.score(X_val, y_val)
+# test_score = clf.score(X_test, y_test)
+
+# print("Val Score: ", val_score)
+# print("Test Score: ", test_score)
+
 y_pred_test = clf.predict(X_test)
 f1_score_test = f1_score(y_test, y_pred_test, average = 'weighted')
 acc_score_test = accuracy_score(y_test, y_pred_test)
 mcc_score = matthews_corrcoef(y_test, y_pred_test)
 bal_acc = balanced_accuracy_score(y_test, y_pred_test)
-
+print("Test Results")
 print("F1 Score: ", f1_score_test)
 print("Acc Score: ", acc_score_test)
 print("MCC: ", mcc_score)
 print("Bal Acc: ", bal_acc)
 
+print("Bootstrapping Results")
+num_iter = 1000
+f1_arr = []
+acc_arr = []
+mcc_arr = []
+bal_arr = []
+for it in range(num_iter):
+    print("Iteration: ", it)
+    X_test_re, y_test_re = resample(X_test, y_test, n_samples = len(y_test), random_state=it)
+    y_pred_test_re = clf.predict(X_test_re)
+    # print(y_test_re)
+    f1_arr.append(f1_score(y_test_re, y_pred_test_re, average = 'macro'))
+    acc_arr.append(accuracy_score(y_test_re, y_pred_test_re))
+    mcc_arr.append(matthews_corrcoef(y_test_re, y_pred_test_re))
+    bal_arr.append(balanced_accuracy_score(y_test_re, y_pred_test_re))
 
 
+print("Accuracy: ", np.mean(acc_arr), np.std(acc_arr))
+print("F1-Score: ", np.mean(f1_arr), np.std(f1_arr))
+print("MCC: ", np.mean(mcc_arr), np.std(mcc_arr))
+print("Bal Acc: ", np.mean(bal_arr), np.std(bal_arr))
+
+'''(CS) 
 '''
-Test Accuracy:
-Accuracy:  0.6262492550655543 0.005977324980812332
-F1-Score:  0.34706782832886024 0.006296207500719728
-MCC:  0.6246324700626311 0.005988341647034217
-Bal Acc:  0.3796620400863079 0.006245450621130005
-'''
+
+
+

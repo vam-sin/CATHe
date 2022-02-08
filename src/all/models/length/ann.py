@@ -44,7 +44,8 @@ if gpus:
         # Virtual devices must be set before GPUs have been initialized
         print(e)
 
-X_train_df = list(pd.read_csv('../../data/final/Train.csv')["Sequence"])
+X_train_df = list(pd.read_csv('../../data/final/CSV/Train.csv')["Sequence"])
+X_train_other_df = list(pd.read_csv('../../data/other/protbert_data/Other_Train_SF_US_New.csv')["Sequence"])
 # print(X_train_df)
 
 X_train = []
@@ -52,7 +53,11 @@ X_train = []
 for i in X_train_df:
     X_train.append(len(i))
 
-X_test_df = list(pd.read_csv('../../data/final/Test.csv')["Sequence"])
+for i in X_train_other_df:
+    X_train.append(len(i))
+
+X_test_df = list(pd.read_csv('../../data/final/CSV/Test.csv')["Sequence"])
+X_test_other_df = list(pd.read_csv('../../data/other/protbert_data/Other_Test_SF_US_New.csv')["Sequence"])
 # print(X_train_df)
 
 X_test = []
@@ -60,7 +65,11 @@ X_test = []
 for i in X_test_df:
     X_test.append(len(i))
 
-X_val_df = list(pd.read_csv('../../data/final/Val.csv')["Sequence"])
+for i in X_test_other_df:
+    X_test.append(len(i))
+
+X_val_df = list(pd.read_csv('../../data/final/CSV/Val.csv')["Sequence"])
+X_val_other_df = list(pd.read_csv('../../data/other/protbert_data/Other_Val_SF_US_New.csv')["Sequence"])
 # print(X_train_df)
 
 X_val = []
@@ -68,17 +77,29 @@ X_val = []
 for i in X_val_df:
     X_val.append(len(i))
 
-ds_train = pd.read_csv('../../data/final/Train.csv')
+for i in X_val_other_df:
+    X_val.append(len(i))
+
+ds_train = pd.read_csv('../../data/final/CSV/Train.csv')
 
 y_train = list(ds_train["SF"])
 
-ds_val = pd.read_csv('../../data/final/Val.csv')
+for i in range(len(X_train_other_df)):
+    y_train.append('other')
+
+ds_val = pd.read_csv('../../data/final/CSV/Val.csv')
 
 y_val = list(ds_val["SF"])
 
-ds_test = pd.read_csv('../../data/final/Test.csv')
+for i in range(len(X_val_other_df)):
+    y_val.append('other')
+
+ds_test = pd.read_csv('../../data/final/CSV/Test.csv')
 
 y_test = list(ds_test["SF"])
+
+for i in range(len(X_test_other_df)):
+    y_test.append('other')
 
 # y process
 y_tot = []
@@ -183,7 +204,7 @@ def create_model():
     return classifier
 
 # training
-num_epochs = 200
+num_epochs = 10
 
 with tf.device('/gpu:0'):
     # model
@@ -260,8 +281,8 @@ with tf.device('/cpu:0'):
 
 '''
 Sequence Length Classifier
-Accuracy:  0.0337838200238379 0.0022135057432176655
-F1-Score:  0.0004390015836449885 4.677289904882523e-05
-MCC:  0.029414579151567637 0.002461990248037549
-Bal Acc:  0.00186335953893949 0.00010252420756022648
+Accuracy:  0.03338195861264937 0.0021798833044140726
+F1-Score:  0.0004445062387185485 4.514739270775787e-05
+MCC:  0.02735765816420239 0.0023156411155433976
+Bal Acc:  0.002332759793150367 0.00010639671446025988
 '''

@@ -9,7 +9,7 @@ top50 = pickle.load(infile)
 infile.close()
 
 # train 
-ds_train = pd.read_csv('/home/vamsi/UCL/projects/CATHe/src/all/data/final/Train.csv')
+ds_train = pd.read_csv('/home/vamsi/UCL/projects/CATHe/src/all/data/final/CSV/Train.csv')
 y_train_full = list(ds_train["SF"])
 
 train_index = ds_train.index[ds_train['SF'].isin(top50)].tolist()

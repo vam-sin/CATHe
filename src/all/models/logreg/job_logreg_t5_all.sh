@@ -13,4 +13,4 @@ source ml-actual/bin/activate
 cd SF-all/models/prott5/
 export PATH=/share/apps/python-3.7.2-shared/bin:$PATH
 export LD_LIBRARY_PATH=/share/apps/python-3.7.2-shared/lib:$LD_LIBRARY_PATH
-python3 logreg_prott5_all.py 	
+python3 logreg_t5_all.py 	
