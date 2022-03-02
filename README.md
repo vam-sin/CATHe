@@ -13,3 +13,17 @@ pip3 install -r requirements.txt
 # Data
 
 The dataset used for training, optimizing, and testing CATHe was derived from the CATH database. It can be downloaded from [here](https://drive.google.com/drive/folders/1riUfeNMXghokq2Vy_T7j6IXSNxye7CvY?usp=sharing).
+
+# CATHe Predictions
+
+Folder /src/cathe-predict
+
+Set the following values before running the predictions script: 
+  a) Location of the protein fasta file in fasta_to_ds.py
+  b) Prediction Probability Threshold in make_predictions.py
+
+```python3
+python3 cathe_predictions.py
+```
+
+In a file named "results.csv", the results from the batch prediction will be stored. 
