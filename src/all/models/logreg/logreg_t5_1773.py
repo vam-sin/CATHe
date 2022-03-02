@@ -1,3 +1,7 @@
+'''
+Logistic Regression Model trained on the t5 embeddings
+'''
+
 # libraries
 import pandas as pd 
 import numpy as np 
