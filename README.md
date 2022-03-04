@@ -14,7 +14,7 @@ pip3 install -r requirements.txt
 
 # Data
 
-The dataset used for training, optimizing, and testing CATHe was derived from the CATH database. It can be downloaded from [here](https://drive.google.com/drive/folders/1riUfeNMXghokq2Vy_T7j6IXSNxye7CvY?usp=sharing).
+The dataset used for training, optimizing, and testing CATHe was derived from the CATH database. The datasets, along with the weights for the CATHe artificial neural network can be downloaded from Zenodo from this link: [Dataset](https://doi.org/10.5281/zenodo.6327572).
 
 # CATHe Predictions
 
