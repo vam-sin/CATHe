@@ -6,7 +6,7 @@ import matplotlib.style as style
 style.use('seaborn-poster') #sets the size of the charts
 style.use('ggplot') 
 
-ds = pd.read_csv('results/L50.csv')
+ds = pd.read_csv('results/All.csv')
 
 model = list(ds["Model"])
 
@@ -34,6 +34,10 @@ ann_l_full = list(ds.loc[4])[3:7]
 ann_l_val = [float(x.split('+-')[0]) for x in ann_l_full]
 ann_l_err = [float(x.split('+-')[1])*1.96 for x in ann_l_full]
 
+# tphmmer_full = list(ds.loc[5])[3:7]
+# tphmmer_val = [float(x.split('+-')[0]) for x in tphmmer_full]
+# tphmmer_err = [float(x.split('+-')[1])*1.96 for x in tphmmer_full]
+
 blast_full = list(ds.loc[5])[3:7]
 blast_val = [float(x.split('+-')[0]) for x in blast_full]
 blast_err = [float(x.split('+-')[1])*1.96 for x in blast_full]
@@ -51,7 +55,7 @@ df_val.index = X
 df_val.plot(y=models, yerr= df_err[models].values.T, kind="bar",figsize=(8,8), fontsize=16, color=['#f1c40f', '#e67e22', '#27ae60', '#2c3e50', '#e74c3c', '#3498db', '#e056fd'])
 plt.xticks(rotation=360, ha='center')
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-plt.savefig('Top 50 Superfamilies.png', bbox_inches='tight')
+plt.savefig('All Superfamilies.png', bbox_inches='tight')
 plt.show()
 
   

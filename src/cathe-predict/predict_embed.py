@@ -5,7 +5,7 @@ import pandas as pd
 
 embedder = ProtTransT5BFDEmbedder()
 
-ds = pd.read_csv('Sequences_Predict.csv')
+ds = pd.read_csv('Dataset.csv')
 
 sequences_Example = list(ds["Sequence"])
 num_seq = len(sequences_Example)

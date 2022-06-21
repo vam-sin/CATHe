@@ -1,3 +1,10 @@
+'''
+Reads the all-vs-all.tsv file from the BLAST scan output to 
+find the best hits for all the sequences in the query set.
+
+Output: Performance of the BLAST model. (Bootstrapped) 
+'''
+
 # libraries
 import pandas as pd 
 import numpy as np
@@ -8,26 +15,18 @@ from sklearn.utils import resample
 
 # load data and check
 ds = pd.read_csv('all-vs-all.tsv', sep='\t', header=None)
-ds.columns = ["q" , "t", "pid", "length", "slen", "qlen", "eval"]
+ds.columns = ["q" , "t", "pid", "four","five","six","seven","eight","nine","ten","eval","twelve"]
+# ds.columns = ["q" , "t", "pid", "length", "slen", "qlen", "eval", "bitscore"]
 print(ds)
 
 q_un = []
+y_test = []
 
 # y_pred generation
-for record in SeqIO.parse("test.fasta", "fasta"):
+for record in SeqIO.parse("test_all.fasta", "fasta"):
     q_un.append(record.description)
-
-test_df = pd.read_csv('Test.csv')
-
-infile = open('top50.pickle','rb')
-top50 = pickle.load(infile)
-infile.close()
-
-test_index = test_df.index[test_df['SF'].isin(top50)].tolist()
-
-y_test_full = list(test_df["SF"])
-
-y_test = [y_test_full[k] for k in test_index]
+    spl = record.description.split('_')
+    y_test.append(spl[len(spl) - 1])
 
 y_pred = []
 count = 0
@@ -56,13 +55,15 @@ for i in range(len(q_un)):
 	if len(target) == 0:
 		# if no hit
 		for query in q_un:
-			if query.split('_')[3] != y_test[i]:
-				sf = query.split('_')[3]
+			spl = query.split('_')
+			if spl[len(spl) - 1] != y_test[i]:
+				sf = spl[len(spl) - 1]
 				break
 	else:
 		# found a good hit
 		count += 1
-		sf = target[0].split('_')[3]
+		spl = target[0].split('_')
+		sf = spl[len(spl) - 1]
 	print(sf, y_test[i])
 	y_pred.append(sf)
 
@@ -106,8 +107,8 @@ print("MCC: ", np.mean(mcc_arr), np.std(mcc_arr))
 print("Bal Acc: ", np.mean(bal_arr), np.std(bal_arr))
 
 '''
-Accuracy:  0.5390662898252826 0.01124982295333954
-F1-Score:  0.4977628122858198 0.014228630994095149
-MCC:  0.5266313402076651 0.011455595731603405
-Bal Acc:  0.578437145222221 0.015448843258183197
+Accuracy:  0.31245161760419704 0.005658719323554423
+F1-Score:  0.21536128597311935 0.006040697628749656
+MCC:  0.310088764795035 0.005670890714957613
+Bal Acc:  0.2531639426479432 0.006609206424256284
 '''

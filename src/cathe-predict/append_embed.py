@@ -12,4 +12,4 @@ for i in range(1, 1000000):
 	except:
 		pass
 
-np.savez_compressed('Embeddings_ProtT5.npz', pb_arr)
+np.savez_compressed('Embeddings_T5.npz', pb_arr)

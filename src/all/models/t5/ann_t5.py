@@ -1,3 +1,7 @@
+'''
+ANN model trained on the T5 embeddings
+'''
+
 # libraries
 import pandas as pd 
 import numpy as np 

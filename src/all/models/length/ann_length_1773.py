@@ -1,7 +1,12 @@
+'''
+Train an ANN model based on protein sequence lengths.
+'''
+
 # libraries
 import pandas as pd 
 import numpy as np 
 from sklearn import preprocessing
+import biovec
 import math
 import pickle
 import tensorflow as tf
@@ -43,43 +48,62 @@ if gpus:
         # Virtual devices must be set before GPUs have been initialized
         print(e)
 
-# dataset import
-infile = open('top50.pickle','rb')
-top50 = pickle.load(infile)
-infile.close()
+X_train_df = list(pd.read_csv('../../data/final/CSV/Train.csv')["Sequence"])
+X_train_other_df = list(pd.read_csv('../../data/other/protbert_data/Other_Train_SF_US_New.csv')["Sequence"])
+# print(X_train_df)
 
-# train 
-ds_train = pd.read_csv('Y_Train_SF.csv')
-y_train_full = list(ds_train["SF"])
-filename = 'SF_Train_ProtT5.npz'
-X_train_full = np.load(filename)['arr_0']
+X_train = []
 
-train_index = ds_train.index[ds_train['SF'].isin(top50)].tolist()
+for i in X_train_df:
+    X_train.append(len(i))
 
-X_train = [X_train_full[k] for k in train_index]
-y_train = [y_train_full[k] for k in train_index]
+for i in X_train_other_df:
+    X_train.append(len(i))
 
-# val
-ds_val = pd.read_csv('Y_Val_SF.csv')
-y_val_full = list(ds_val["SF"])
-filename = 'SF_Val_ProtT5.npz'
-X_val_full = np.load(filename)['arr_0']
+X_test_df = list(pd.read_csv('../../data/final/CSV/Test.csv')["Sequence"])
+X_test_other_df = list(pd.read_csv('../../data/other/protbert_data/Other_Test_SF_US_New.csv')["Sequence"])
+# print(X_train_df)
 
-val_index = ds_val.index[ds_val['SF'].isin(top50)].tolist()
+X_test = []
 
-X_val = [X_val_full[k] for k in val_index]
-y_val = [y_val_full[k] for k in val_index]
+for i in X_test_df:
+    X_test.append(len(i))
 
-# test
-ds_test = pd.read_csv('Y_Test_SF.csv')
-y_test_full = list(ds_test["SF"])
-filename = 'SF_Test_ProtT5.npz'
-X_test_full = np.load(filename)['arr_0']
+for i in X_test_other_df:
+    X_test.append(len(i))
 
-test_index = ds_test.index[ds_test['SF'].isin(top50)].tolist()
+X_val_df = list(pd.read_csv('../../data/final/CSV/Val.csv')["Sequence"])
+X_val_other_df = list(pd.read_csv('../../data/other/protbert_data/Other_Val_SF_US_New.csv')["Sequence"])
+# print(X_train_df)
 
-X_test = [X_test_full[k] for k in test_index]
-y_test = [y_test_full[k] for k in test_index]
+X_val = []
+
+for i in X_val_df:
+    X_val.append(len(i))
+
+for i in X_val_other_df:
+    X_val.append(len(i))
+
+ds_train = pd.read_csv('../../data/final/CSV/Train.csv')
+
+y_train = list(ds_train["SF"])
+
+for i in range(len(X_train_other_df)):
+    y_train.append('other')
+
+ds_val = pd.read_csv('../../data/final/CSV/Val.csv')
+
+y_val = list(ds_val["SF"])
+
+for i in range(len(X_val_other_df)):
+    y_val.append('other')
+
+ds_test = pd.read_csv('../../data/final/CSV/Test.csv')
+
+y_test = list(ds_test["SF"])
+
+for i in range(len(X_test_other_df)):
+    y_test.append('other')
 
 # y process
 y_tot = []
@@ -104,8 +128,31 @@ num_classes = len(np.unique(y_tot))
 print(num_classes)
 print("Loaded X and y")
 
+df = pd.DataFrame(list(zip(X_train, y_train)),
+               columns =['Length', 'SF'])
+
+print(df)
+
+y_train_un = list(set(y_train))
+
+print(len(y_train_un))
+y_train_un = np.sort(y_train_un)
+for i in y_train_un:
+    df1 = df[df['SF'] == i]
+    le = list(df1["Length"])
+    print(i, np.mean(le), np.std(le))
+
 X_train, y_train = shuffle(X_train, y_train, random_state=42)
 print("Shuffled")
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# print("Conducted Train-Test Split")
+
+# num_classes_train = len(np.unique(y_train))
+# num_classes_test = len(np.unique(y_test))
+# print(num_classes_train, num_classes_test)
+
+# assert num_classes_test == num_classes_train, "Split not conducted correctly"
 
 # generator
 def bm_generator(X_t, y_t, batch_size):
@@ -134,6 +181,10 @@ def bm_generator(X_t, y_t, batch_size):
 # batch size
 bs = 256
 
+# test and train generators
+# train_gen = bm_generator(X_train, y_train, bs)
+# test_gen = bm_generator(X_test, y_test, bs)
+
 # num_classes = 1707
 
 # sensitivity metric
@@ -144,20 +195,20 @@ def sensitivity(y_true, y_pred):
 
 # Keras NN Model
 def create_model():
-    input_ = Input(shape = (1024,))
+    input_ = Input(shape = (1,))
     x = Dense(1024, activation = "relu")(input_)
     x = BatchNormalization()(x)
     x = Dropout(0.5)(x)
     x = Dense(1024, activation = "relu")(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.5)(x) 
+    x = Dropout(0.5)(x)
     out = Dense(num_classes, activation = 'softmax')(x)
     classifier = Model(input_, out)
 
     return classifier
 
 # training
-num_epochs = 200
+num_epochs = 10
 
 with tf.device('/gpu:0'):
     # model
@@ -168,7 +219,7 @@ with tf.device('/gpu:0'):
     model.compile(optimizer = "adam", loss = "categorical_crossentropy", metrics=['accuracy', sensitivity])
 
     # callbacks
-    mcp_save = keras.callbacks.ModelCheckpoint('saved_models/ann_t5_largest50.h5', save_best_only=True, monitor='val_accuracy', verbose=1)
+    mcp_save = keras.callbacks.ModelCheckpoint('ann_length.h5', save_best_only=True, monitor='val_accuracy', verbose=1)
     reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_accuracy', factor=0.1, patience=10, verbose=1, mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
     early_stop = keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=30)
     callbacks_list = [reduce_lr, mcp_save, early_stop]
@@ -178,7 +229,7 @@ with tf.device('/gpu:0'):
     val_gen = bm_generator(X_val, y_val, bs)
     test_gen = bm_generator(X_test, y_test, bs)
     #history = model.fit_generator(train_gen, epochs = num_epochs, steps_per_epoch = math.ceil(len(X_train)/(bs)), verbose=1, validation_data = val_gen, validation_steps = len(X_val)/bs, workers = 0, shuffle = True, callbacks = callbacks_list)
-    model = load_model('saved_models/ann_t5_largest50.h5', custom_objects={'sensitivity':sensitivity})
+    model = load_model('ann_length.h5', custom_objects={'sensitivity':sensitivity})
 
     print("Validation")
     y_pred_val = model.predict(X_val)
@@ -187,9 +238,9 @@ with tf.device('/gpu:0'):
     print("F1 Score: ", f1_score_val)
     print("Acc Score", acc_score_val)
 
-    print("Regular Testing")
+    print("Testing")
     y_pred_test = model.predict(X_test)
-    f1_score_test = f1_score(y_test, y_pred_test.argmax(axis=1), average = 'macro')
+    f1_score_test = f1_score(y_test, y_pred_test.argmax(axis=1), average = 'weighted')
     acc_score_test = accuracy_score(y_test, y_pred_test.argmax(axis=1))
     mcc_score = matthews_corrcoef(y_test, y_pred_test.argmax(axis=1))
     bal_acc = balanced_accuracy_score(y_test, y_pred_test.argmax(axis=1))
@@ -205,10 +256,10 @@ with tf.device('/gpu:0'):
     mcc_arr = []
     bal_arr = []
     for it in range(num_iter):
-        # print("Iteration: ", it)
+        print("Iteration: ", it)
         X_test_re, y_test_re = resample(X_test, y_test, n_samples = len(y_test), random_state=it)
         y_pred_test_re = model.predict(X_test_re)
-        print(y_test_re)
+        # print(y_test_re)
         f1_arr.append(f1_score(y_test_re, y_pred_test_re.argmax(axis=1), average = 'macro'))
         acc_arr.append(accuracy_score(y_test_re, y_pred_test_re.argmax(axis=1)))
         mcc_arr.append(matthews_corrcoef(y_test_re, y_pred_test_re.argmax(axis=1)))
@@ -220,23 +271,22 @@ with tf.device('/gpu:0'):
     print("MCC: ", np.mean(mcc_arr), np.std(mcc_arr))
     print("Bal Acc: ", np.mean(bal_arr), np.std(bal_arr))
 
-
-
-with tf.device('/gpu:0'):
+with tf.device('/cpu:0'):
     y_pred = model.predict(X_test)
     print("Classification Report Validation")
     cr = classification_report(y_test, y_pred.argmax(axis=1), output_dict = True)
     df = pd.DataFrame(cr).transpose()
-    df.to_csv('CR_ANN_T5_Largest50.csv')
+    df.to_csv('CR_ANN_Length.csv')
     print("Confusion Matrix")
     matrix = confusion_matrix(y_test, y_pred.argmax(axis=1))
     print(matrix)
     print("F1 Score")
-    print(f1_score(y_test, y_pred.argmax(axis=1), average = 'macro'))
+    print(f1_score(y_test, y_pred.argmax(axis=1), average = 'weighted'))
 
-'''Epoch: 55
-Accuracy:  0.9846464542651593 0.0027678298062383836
-F1-Score:  0.9682708567111354 0.010076959172388664
-MCC:  0.9840320432289833 0.002875819948083098
-Bal Acc:  0.9707125947363553 0.00824525718040017
+'''
+Sequence Length Classifier
+Accuracy:  0.03338195861264937 0.0021798833044140726
+F1-Score:  0.0004445062387185485 4.514739270775787e-05
+MCC:  0.02735765816420239 0.0023156411155433976
+Bal Acc:  0.002332759793150367 0.00010639671446025988
 '''
