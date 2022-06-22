@@ -73,16 +73,13 @@ sequences = list(ds["Sequence"])
 record = list(ds["Record"])
 
 for i in range(len(y_pred)):
-	# print(i)
-	if max(y_pred[i]) >= 0.9: 
-		sfam_thresh.append(classes[np.argmax(y_pred[i])])
-		sequence_thresh.append(sequences[i])
-		record_thresh.append(record[i])
-		max_val = max(y_pred[i])
-		pred_prob.append(max_val)
-		embeds_thresh.append(embeds[i])
-	else:
-		un_embeds_thresh.append(embeds[i])
+	sfam_thresh.append(classes[np.argmax(y_pred[i])])
+	sequence_thresh.append(sequences[i])
+	record_thresh.append(record[i])
+	max_val = max(y_pred[i])
+	pred_prob.append(max_val)
+	embeds_thresh.append(embeds[i])
+	un_embeds_thresh.append(embeds[i])
 
 
 df = pd.DataFrame(list(zip(record_thresh, sequence_thresh, sfam_thresh, pred_prob)), columns =['Record', 'Sequence', 'CATHe_Predicted_SFAM', 'CATHe_Prediction_Probability'])
