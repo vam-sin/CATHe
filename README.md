@@ -44,6 +44,7 @@ The CATHe predictions would be stored in a file named "results.csv" in the same 
 
 If you found this work useful, please consider citing the following article:
 
+```
 @article {CATHe2022,
 	author = {Nallapareddy, Vamsi and Bordin, Nicola and Sillitoe, Ian and Heinzinger, Michael and Littmann, Maria and Waman, Vaishali and Sen, Neeladri and Rost, Burkhard and Orengo, Christine},
 	title = {CATHe: Detection of remote homologues for CATH superfamilies using embeddings from protein language models},
@@ -51,8 +52,8 @@ If you found this work useful, please consider citing the following article:
 	year = {2022},
 	doi = {10.1101/2022.03.10.483805},
 	publisher = {Cold Spring Harbor Laboratory},
-	abstract = {CATH is a protein domain classification resource that combines an automated workflow of structure and sequence comparison alongside expert manual curation to construct a hierarchical classification of evolutionary and structural relationships. The aim of this study was to develop algorithms for detecting remote homologues that might be missed by state-of-the-art HMM-based approaches. The proposed algorithm for this task (CATHe) combines a neural network with sequence representations obtained from protein language models. The employed dataset consisted of remote homologues that had less than 20\% sequence identity. The CATHe models trained on 1773 largest, and 50 largest CATH superfamilies had an accuracy of 85.6+-0.4, and 98.15+-0.30 respectively. To examine whether CATHe was able to detect more remote homologues than HMM-based approaches, we employed a dataset consisting of protein regions that had annotations in Pfam, but not in CATH. For this experiment, we used highly reliable CATHe predictions (expected error rate \&lt;0.5\%), which provided CATH annotations for 4.62 million Pfam domains. For a subset of these domains from homo sapiens, we structurally validated 90.86\% of the predictions by comparing their corresponding AlphaFold structures with experimental structures from the CATHe predicted superfamilies.Competing Interest StatementThe authors have declared no competing interest.},
 	URL = {https://www.biorxiv.org/content/early/2022/03/13/2022.03.10.483805},
 	eprint = {https://www.biorxiv.org/content/early/2022/03/13/2022.03.10.483805.full.pdf},
 	journal = {bioRxiv}
 }
+```
