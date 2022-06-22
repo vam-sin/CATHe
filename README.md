@@ -20,12 +20,22 @@ The dataset used for training, optimizing, and testing CATHe was derived from th
 
 Folder /src/cathe-predict
 
-Set the following values before running the predictions script: 
-  a) Location of the protein fasta file in fasta_to_ds.py
-  b) Prediction Probability Threshold in make_predictions.py
+Before running the scripts, download the following files from Zenodod Dataset (mentioned above) and place them in the "/src/cathe-predict" folder:
+
+a) CATHe.h5 
+
+This is the CATHe neural network model.
+
+b) Y_Train_SF.csv, Y_Test_SF.csv, Y_Val_SF.csv
+
+These are the superfamily label files from the dataset. 
+
+Additionally, set the location of the protein fasta file in fasta_to_ds.py script. 
+
+Run the following command to make predictions using CATHe. 
 
 ```python3
 python3 cathe_predictions.py
 ```
 
-In a file named "results.csv", the results from the batch prediction will be stored. 
+The CATHe predictions would be stored in a file named "results.csv" in the same folder. The results.csv has 4 columns: ['Record', 'Sequence', 'CATHe_Predicted_SFAM', 'CATHe_Prediction_Probability']. The "Record" column is the identifier for the protein sequence. The "Sequence" column stores the primary sequence of the protein. The "CATHe_Predicted_SFAM" is the CATH superfamily prediction made by CATHe, and the probability of this prediction is mentioned in the "CATHe_Prediction_Probability" column. 
